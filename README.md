@@ -92,6 +92,18 @@ Funcionalidades:
 
 ---
 
+## ✅ Pré-requisitos
+
+Antes de começar, garanta que você tenha as seguintes ferramentas instaladas:
+
+-   [.NET SDK 8.0](https://dotnet.microsoft.com/download) ou superior
+-   [Java JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) ou superior
+-   [Node.js 18.x](https://nodejs.org/) ou superior
+-   [Docker](https://www.docker.com/products/docker-desktop/) (para o banco de dados)
+-   Um cliente Git para clonar o repositório
+
+---
+
 ## 🧪 Como Rodar Localmente
 
 ### 1. Clonar o repositório
@@ -104,11 +116,15 @@ cd mottomap
 ### 2. Iniciar APIs
 
 #### .NET API
+1.  Navegue até a pasta `backend-dotnet`.
+2.  Crie uma cópia do arquivo `appsettings.example.json` e renomeie para `appsettings.Development.json`.
+3.  Preencha a string de conexão do Oracle no novo arquivo.
+4.  Execute os comandos:
+
 ```bash
 cd backend-dotnet
 dotnet ef database update
 dotnet run
-```
 
 #### Java API
 ```bash

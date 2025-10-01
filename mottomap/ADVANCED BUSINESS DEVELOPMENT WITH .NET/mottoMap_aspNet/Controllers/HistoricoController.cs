@@ -5,6 +5,7 @@ using MotoMap.Api.DotNet.Models;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
+    /// Fornece endpoints para consultar o histórico de ocupação das posições.
     [Route("api/[controller]")]
     [ApiController]
     public class HistoricoController : ControllerBase

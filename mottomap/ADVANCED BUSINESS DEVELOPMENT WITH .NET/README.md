@@ -2,227 +2,95 @@
 
 O MotoMap é um sistema desenvolvido para auxiliar na organização e gestão dos pátios de motos da empresa Mottu. Este módulo específico, desenvolvido em ASP.NET Core (C#), é o **Dono das Ações** relacionadas às operações temporais e integrações externas do sistema.
 
-## 🔵 Responsabilidades do Módulo .NET
-
-Este módulo é crucial para:
-
-- Gerenciar o histórico de todas as movimentações de motos.
-- Registrar entradas e saídas de motos no pátio.
-- Manter o histórico de qual posição cada moto ocupou e por quanto tempo.
-- Possibilitar integrações com serviços externos (ex: um sistema de IA para triagem de veículos).
-
 ## 👨‍💻 Equipe
 
 - Caike Dametto – RM: 558614
 - Guilherme Janunzzi – RM: 558461
 
+## 🏛️ Justificativa da Arquitetura
+
+* **Tecnologia (.NET e C#):** A escolha pelo ASP.NET Core se deu pela sua alta performance, natureza open-source e ecossistema robusto, ideal para a construção de APIs RESTful escaláveis. A linguagem C# oferece segurança de tipo e recursos modernos que agilizam o desenvolvimento.
+* **Padrão de API RESTful:** Optamos por uma arquitetura RESTful para garantir a interoperabilidade com outros módulos (como o de Java). O uso de verbos HTTP (`GET`, `POST`, `PUT`, `DELETE`) e status codes padronizados torna a comunicação clara e previsível.
+* **Divisão de Responsabilidades (Microsserviços):** Este módulo funciona como um microsserviço focado exclusivamente no domínio de movimentações e histórico. Essa abordagem facilita a manutenção, a implantação e a escalabilidade, permitindo que cada parte do sistema evolua de forma independente.
+* **Entity Framework Core:** Utilizamos o EF Core como ORM para abstrair o acesso ao banco de dados, aumentando a produtividade. O uso do provedor SQLite torna o ambiente de desenvolvimento extremamente leve e rápido, sem a necessidade de um servidor de banco de dados externo.
+
 ## 🛠️ Tecnologias Utilizadas
 
 - ASP.NET Core
 - C#
-- Entity Framework Core (para interação com banco de dados)
-
-## 🧱 Componentes Principais
-
-### Entidades (Modelos EF Core)
-
-1. **Movimentacao**: Representa o registro de uma movimentação de moto.
-   - Atributos:
-     - `id` (int): Identificador único da movimentação.
-     - `tipo` (string/enum): Tipo da movimentação (ex: "ENTRADA", "SAIDA").
-     - `dataHora` (DateTime): Data e hora da movimentação.
-     - `observacoes` (string, opcional): Observações adicionais.
-   - Relacionamentos:
-     - `MotoId` (int): Chave estrangeira para a entidade Moto (gerenciada por outro serviço/módulo).
-     - `UsuarioId` (int): Chave estrangeira para o Usuário que realizou a movimentação.
-     - `PosicaoId` (int, opcional): Chave estrangeira para a Posição no pátio (relevante para saídas ou para registrar a posição de entrada).
-
-2. **HistoricoPosicao**: Mantém o histórico de ocupação das posições pelas motos.
-   - Atributos:
-     - `id` (int): Identificador único do registro de histórico.
-     - `dataInicio` (DateTime): Data e hora em que a moto entrou na posição.
-     - `dataFim` (DateTime, nullable): Data e hora em que a moto saiu da posição (nulo se a moto ainda está na posição).
-   - Relacionamentos:
-     - `MotoId` (int): Chave estrangeira para a entidade Moto.
-     - `PosicaoId` (int): Chave estrangeira para a entidade Posição.
-
-### Controladores (Controllers)
-
-1. **MovimentacaoController**: Responsável por gerenciar as movimentações de entrada e saída.
-   - `POST /movimentacoes/entrada`: Registra a entrada de uma moto no pátio. Ao registrar uma entrada, um novo registro em HistoricoPosicao é criado com `dataInicio` preenchida e `dataFim` nula.
-   - `POST /movimentacoes/saida`: Registra a saída de uma moto. Atualiza o registro correspondente em HistoricoPosicao, preenchendo `dataFim`.
-
-2. **HistoricoController**: Responsável por consultas relacionadas ao histórico de posições.
-   - `GET /historico/posicoes/atuais`: Consulta as posições atualmente ocupadas (onde `dataFim` em HistoricoPosicao é `null`).
-   - Outros endpoints podem ser adicionados para consultar históricos completos por moto, por posição, etc.
-
-## 🔗 Comunicação com Outros Módulos (ex: Módulo Java)
-
-A comunicação entre este módulo .NET e outros módulos (como o de Java, que gerencia motos, filiais, etc.) é realizada primariamente via HTTP REST.
-
-- **Método Principal**: HTTP REST.
-  - Exemplo: Quando o módulo Java cadastra uma nova moto e a designa para um pátio, ele pode chamar o endpoint deste módulo .NET para registrar a entrada inicial:
-    ```http
-    POST http://api-dotnet/movimentacoes/entrada
-    Content-Type: application/json
-
-    {
-      "motoId": 123,
-      "posicaoId": 456,
-      "usuarioId": 789,
-      "observacoes": "Entrada inicial da moto no pátio X."
-    }
-    ```
-
-- **Método Avançado (Opcional)**: Para cenários que exigem maior desacoplamento e resiliência, pode-se considerar o uso de mensageria com **Apache Kafka** ou **RabbitMQ** para comunicação assíncrona baseada em eventos (ex: um evento `MotoPosicionadaEvent` após uma entrada ser registrada).
-
-## 📌 Exemplo de Fluxo de Código (Registro de Entrada)
-
-```csharp
-// No MovimentacaoController.cs
-
-[ApiController]
-[Route("movimentacoes")]
-public class MovimentacaoController : ControllerBase
-{
-    private readonly SeuDbContext _context; // Seu DbContext do EF Core
-
-    public MovimentacaoController(SeuDbContext context)
-    {
-        _context = context;
-    }
-
-    [HttpPost("entrada")]
-    public async Task<IActionResult> RegistrarEntrada([FromBody] MovimentacaoEntradaDto dto)
-    {
-        // Validações do DTO (omissas para brevidade)
-
-        // Cria a movimentação
-        var movimentacao = new Movimentacao
-        {
-            MotoId = dto.MotoId,
-            PosicaoId = dto.PosicaoId, // Posição onde a moto está entrando
-            UsuarioId = dto.UsuarioId,
-            Tipo = "ENTRADA", // Ou um enum/constante
-            DataHora = DateTime.UtcNow,
-            Observacoes = dto.Observacoes
-        };
-        _context.Movimentacoes.Add(movimentacao);
-
-        // Cria o registro no histórico de posições
-        var historico = new HistoricoPosicao
-        {
-            MotoId = dto.MotoId,
-            PosicaoId = dto.PosicaoId,
-            DataInicio = DateTime.UtcNow,
-            DataFim = null // Moto está atualmente nesta posição
-        };
-        _context.HistoricoPosicoes.Add(historico);
-
-        await _context.SaveChangesAsync();
-
-        // Pode retornar o objeto criado ou um status Ok/Created
-        return CreatedAtAction(nameof(RegistrarEntrada), new { id = movimentacao.Id }, movimentacao);
-    }
-
-    // DTO para o corpo da requisição de entrada
-    public class MovimentacaoEntradaDto
-    {
-        public int MotoId { get; set; }
-        public int PosicaoId { get; set; }
-        public int UsuarioId { get; set; }
-        public string? Observacoes { get; set; }
-    }
-}
-
-# 🚀 Como Executar o Projeto
-
----
+- Entity Framework Core
+- SQLite
 
 ## ✅ Pré-requisitos
 
 * .NET SDK (versão 6.0 ou superior recomendada)
 * Um ambiente de desenvolvimento integrado (IDE) como Visual Studio, JetBrains Rider ou Visual Studio Code.
-* Acesso a um banco de dados compatível com EF Core (ex: SQL Server, PostgreSQL, SQLite) e string de conexão configurada em `appsettings.json`.
 
----
+## 🚀 Como Executar a API
 
-## 🔧 Passo a Passo
-
-1.  **Clone o repositório**
+1.  **Clone o repositório:**
     ```bash
     git clone <URL_DO_SEU_REPOSITORIO_DOTNET>
     cd <NOME_DA_PASTA_DO_PROJETO_DOTNET>
     ```
 
-2.  **Configure o Banco de Dados**
-    * Atualize a string de conexão em `appsettings.json` (e `appsettings.Development.json`).
-    * Aplique as migrações do EF Core (se estiver usando Code First):
-        ```bash
-        dotnet ef database update
-        ```
+2.  **Crie o Banco de Dados (SQLite):**
+    O banco de dados será criado automaticamente. Basta executar o comando abaixo para aplicar as configurações no banco de dados local.
+    ```bash
+    dotnet ef database update
+    ```
 
-3.  **Execute o projeto**
+3.  **Execute o projeto:**
     ```bash
     dotnet run
     ```
-    Ou execute diretamente pela sua IDE.
 
-4.  **Acesse a documentação da API (Swagger/OpenAPI)**
-    Por padrão, geralmente disponível em: `http://localhost:<PORTA>/swagger` (ex: `http://localhost:5001/swagger`)
+4.  **Acesse a documentação interativa (Swagger):**
+    A API estará rodando e a documentação Swagger estará disponível, geralmente em: `http://localhost:5001/swagger` (a porta pode variar).
 
----
+## 🧪 Como Rodar os Testes
 
-## 🔗 Endpoints da API
+Para executar os testes automatizados do projeto (se houver), navegue até a pasta do projeto de testes e execute o seguinte comando:
 
-### Movimentações (`/movimentacoes`)
+```bash
+# Navegue para a pasta de testes (ex: cd MotoMap.Tests)
+dotnet test
 
-| Método | Endpoint         | Descrição                                                       |
-| :----- | :--------------- | :-------------------------------------------------------------- |
-| POST   | `/entrada`       | Registra a entrada de uma moto no pátio e cria histórico.      |
-| POST   | `/saida`         | Registra a saída de uma moto e atualiza dataFim no histórico. |
-| GET    | `/{id}`          | Busca uma movimentação específica por ID.                     |
-| GET    | `/moto/{motoId}` | Lista todas as movimentações de uma moto específica.          |
+## 🔗 Exemplos de Uso dos Endpoints
 
-*Exportar para as Planilhas*
+Abaixo estão exemplos de como interagir com os principais endpoints da API.
 
-### Histórico de Posições (`/historico`)
+### 1. Registrar uma nova moto
 
-| Método | Endpoint             | Descrição                                                              |
-| :----- | :------------------- | :--------------------------------------------------------------------- |
-| GET    | `/posicoes/atuais`   | Lista todas as motos e suas posições atuais (dataFim == null).        |
-| GET    | `/moto/{motoId}`     | Lista todo o histórico de posições de uma moto específica.            |
-| GET    | `/posicao/{posicaoId}`| Lista todo o histórico de ocupação de uma posição específica.          |
+**Requisição:** `POST /api/motos`
 
-*Exportar para as Planilhas*
+**Corpo (Body):**
+```json
+{
+  "placa": "ABC1D23",
+  "modelo": "Yamaha Fazer 250",
+  "ano": 2023
+}
 
-*(Obs: Alguns endpoints acima são sugestões e podem precisar ser implementados conforme a necessidade.)*
+### 2. Registrar a entrada de uma moto em um pátio
 
----
+**Requisição:** `POST /movimentacoes/entrada`
 
-## 🗂️ Estrutura Sugerida do Projeto (ASP.NET Core Web API)
+**Corpo (Body):**
+```json
+{
+  "motoId": 1,
+  "posicaoId": 101,
+  "usuarioId": 55,
+  "observacoes": "Entrada para manutenção."
+}
 
-```plaintext
-SEU_PROJETO_DOTNET/
-├── Controllers/                # Controladores da API
-│   ├── MovimentacaoController.cs
-│   └── HistoricoController.cs
-├── Data/                       # DbContext e Migrações do EF Core
-│   ├── SeuDbContext.cs
-│   └── Migrations/
-├── Dtos/                       # Objetos de Transferência de Dados
-│   ├── MovimentacaoDto.cs
-│   └── HistoricoPosicaoDto.cs
-├── Models/                     # Entidades do Domínio (EF Core)
-│   ├── Movimentacao.cs
-│   └── HistoricoPosicao.cs
-├── Services/                   # Lógica de negócios (opcional, pode estar nos controllers para projetos menores)
-├── appsettings.json            # Configurações da aplicação
-├── appsettings.Development.json # Configurações de desenvolvimento
-├── Program.cs                  # Configuração e inicialização da aplicação
-├── SeuProjetoDotNet.csproj     # Arquivo de projeto .NET
-└── README.md                   # Este arquivo
+### 3. Registrar a entrada de uma moto em um pátio
 
-## 📅 Licença
-**MotoMap © 2025 - FIAP**\
+**Requisição:** `GET /historico/posicoes/atuais`
+
+📅 **Licença**
+
+*MotoMap © 2025 - FIAP*
+
 Todos os direitos reservados.

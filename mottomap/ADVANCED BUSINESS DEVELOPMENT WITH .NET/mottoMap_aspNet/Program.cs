@@ -1,13 +1,14 @@
-
 using Microsoft.EntityFrameworkCore;
-using MotoMap.Api.DotNet.Data; 
+using MotoMap.Api.DotNet.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Alterado para ler a nova string de conexão
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-var connectionString = builder.Configuration.GetConnectionString("OracleConnection");
+// Indo de UseOracle para UseSqlite
 builder.Services.AddDbContext<MotoMapDbContext>(options =>
-    options.UseOracle(connectionString));
-
+    options.UseSqlite(connectionString));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -22,9 +23,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization(); 
-
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

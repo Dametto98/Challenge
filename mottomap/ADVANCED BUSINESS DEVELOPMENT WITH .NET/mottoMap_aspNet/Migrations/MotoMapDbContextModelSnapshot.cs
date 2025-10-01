@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MotoMap.Api.DotNet.Data;
-using Oracle.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
@@ -16,31 +15,47 @@ namespace MotoMap.Api.DotNet.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
-            OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.Entity("Moto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Motos");
+                });
 
             modelBuilder.Entity("MotoMap.Api.DotNet.Models.HistoricoPosicao", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DataFim")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DataInicio")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("MotoId")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PosicaoId")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -51,27 +66,25 @@ namespace MotoMap.Api.DotNet.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DataHora")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("MotoId")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Observacoes")
-                        .HasColumnType("NVARCHAR2(2000)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("PosicaoId")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Tipo")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

@@ -6,8 +6,10 @@ using MotoMap.Api.DotNet.Models;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
+    /// Gerencia o registro de entradas e saídas de motos no pátio.
     [Route("api/[controller]")]
     [ApiController]
+    /// Registra a entrada de uma moto em uma posição do pátio.
     public class MovimentacoesController : ControllerBase
     {
         private readonly MotoMapDbContext _context;
@@ -51,19 +53,13 @@ namespace MotoMap.Api.DotNet.Controllers
                 };
                 _context.HistoricoPosicoes.Add(novoHistoricoPosicao);
             }
-            // Em um cenário real sem banco, SaveChangesAsync daria erro.
-            // Como estamos apenas preparando o código, vamos mantê-lo.
-            // Em casa, isso funcionará após o Update-Database.
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                // Logar o erro ex se necessário, mas não impedir o push do código
                 Console.WriteLine($"Erro ao salvar no banco (esperado na FIAP sem DB): {ex.Message}");
-                // Para o propósito de ter o código, não vamos relançar o erro aqui na FIAP
-                // Em casa, você removeria este try-catch ou o trataria apropriadamente.
                 return Ok(new { Message = "Tentativa de entrada registrada (DB offline/não acessível).", Movimentacao = movimentacao });
             }
             return Ok(new { Message = "Entrada registrada com sucesso.", MovimentacaoId = movimentacao.Id });
