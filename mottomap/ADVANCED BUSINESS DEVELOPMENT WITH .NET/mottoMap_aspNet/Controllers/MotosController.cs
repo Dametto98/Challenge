@@ -20,6 +20,7 @@ namespace MotoMap.Api.DotNet.Controllers
 
         // GET: api/motos (com paginação)
         [HttpGet]
+        /// Dados da moto a ser criada
         public async Task<ActionResult<IEnumerable<Moto>>> GetMotos([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             return await _context.Motos
