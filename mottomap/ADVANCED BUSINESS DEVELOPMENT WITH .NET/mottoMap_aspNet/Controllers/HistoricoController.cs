@@ -1,56 +1,67 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MotoMap.Api.DotNet.Data;
 using MotoMap.Api.DotNet.Models;
+using MotoMap.Api.DotNet.Services;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
-    /// Fornece endpoints para consultar o histórico de ocupação das posições.
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Fornece endpoints para consultar o histórico e estado atual das posições.
+    /// </summary>
     [ApiController]
+    [Route("api/[controller]")]
     public class HistoricoController : ControllerBase
     {
-        private readonly MotoMapDbContext _context;
+        private readonly IHistoricoService _historicoService;
 
-        public HistoricoController(MotoMapDbContext context)
+        public HistoricoController(IHistoricoService historicoService)
         {
-            _context = context;
+            _historicoService = historicoService;
         }
 
-        [HttpGet("posicoesatuais")]
-        public async Task<ActionResult<IEnumerable<HistoricoPosicao>>> GetPosicoesAtuais()
+        /// <summary>
+        /// Consulta todas as posições que estão atualmente ocupadas.
+        /// </summary>
+        /// <remarks>
+        /// Retorna uma lista de registros de histórico onde a DataFim é nula.
+        /// </remarks>
+        /// <response code="200">Retorna a lista de posições ocupadas.</response>
+        [HttpGet("posicoes/atuais")]
+        [ProducesResponseType(typeof(IEnumerable<HistoricoPosicao>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPosicoesAtuais()
         {
-            // Sem o banco, isso retornará um erro em tempo de execução.
-            // Em casa, funcionará.
-            try
-            {
-                var posicoes = await _context.HistoricoPosicoes.Where(h => h.DataFim == null).ToListAsync();
-                return Ok(posicoes);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao buscar no banco (esperado na FIAP sem DB): {ex.Message}");
-                return StatusCode(503, "Serviço de banco de dados indisponível no momento."); // Service Unavailable
-            }
+            var posicoes = await _historicoService.GetPosicoesAtuaisAsync();
+            return Ok(posicoes);
         }
 
+        /// <summary>
+        /// Lista todo o histórico de posições (passadas e atual) de uma moto específica.
+        /// </summary>
+        /// <param name="motoId">O ID da moto a ser consultada.</param>
+        /// <response code="200">Retorna o histórico da moto.</response>
+        /// <response code="404">Se a moto não tiver nenhum histórico.</response>
         [HttpGet("moto/{motoId}")]
-        public async Task<ActionResult<IEnumerable<HistoricoPosicao>>> GetHistoricoPorMoto(int motoId)
+        [ProducesResponseType(typeof(IEnumerable<HistoricoPosicao>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetHistoricoPorMoto(int motoId)
         {
-            try
+            var historico = await _historicoService.GetHistoricoPorMotoAsync(motoId);
+
+            if (historico == null || !historico.Any())
             {
-                var historico = await _context.HistoricoPosicoes
-                                            .Where(h => h.MotoId == motoId)
-                                            .OrderByDescending(h => h.DataInicio)
-                                            .ToListAsync();
-                if (!historico.Any()) return NotFound($"Nenhum histórico encontrado para a moto com ID {motoId} (DB offline/não acessível).");
-                return Ok(historico);
+                return NotFound("Nenhum histórico encontrado para esta moto.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao buscar no banco (esperado na FIAP sem DB): {ex.Message}");
-                return StatusCode(503, "Serviço de banco de dados indisponível no momento.");
-            }
+
+            return Ok(historico);
         }
     }
 }
+```
+
+---
+### Lembrete Final
+
+Você não precisa mexer no `Program.cs`, pois na nossa conversa anterior nós já adicionamos as linhas para registrar esses dois serviços:
+
+```csharp
+builder.Services.AddScoped<IMovimentacaoService, MovimentacaoService>();
+builder.Services.AddScoped<IHistoricoService, HistoricoService>();

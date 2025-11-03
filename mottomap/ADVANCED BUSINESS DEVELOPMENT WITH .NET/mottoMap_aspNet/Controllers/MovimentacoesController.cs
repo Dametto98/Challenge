@@ -1,103 +1,63 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Adicione se estiver faltando
-using MotoMap.Api.DotNet.Data;
 using MotoMap.Api.DotNet.Dtos;
-using MotoMap.Api.DotNet.Models;
+using MotoMap.Api.DotNet.Services;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
+    /// <summary>
     /// Gerencia o registro de entradas e saídas de motos no pátio.
-    [Route("api/[controller]")]
+    /// </summary>
     [ApiController]
-    /// Registra a entrada de uma moto em uma posição do pátio.
-    public class MovimentacoesController : ControllerBase
+    [Route("api/[controller]")]
+    public class MovimentacaoController : ControllerBase
     {
-        private readonly MotoMapDbContext _context;
+        private readonly IMovimentacaoService _movimentacaoService;
 
-        public MovimentacoesController(MotoMapDbContext context)
+        public MovimentacaoController(IMovimentacaoService movimentacaoService)
         {
-            _context = context;
+            _movimentacaoService = movimentacaoService;
         }
 
+        /// <summary>
+        /// Registra a entrada de uma moto em uma posição do pátio.
+        /// </summary>
+        /// <remarks>
+        /// Cria um evento de "ENTRADA" e um novo registro de "HistoricoPosicao" com DataFim nula.
+        /// </remarks>
+        /// <param name="entradaDto">Dados da moto, posição e usuário.</param>
+        /// <response code="201">Entrada registrada com sucesso.</response>
+        /// <response code="400">Se os dados da requisição forem inválidos.</response>
         [HttpPost("entrada")]
-        public async Task<IActionResult> RegistrarEntrada([FromBody] MovimentacaoEntradaDto dto)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RegistrarEntrada([FromBody] MovimentacaoEntradaDto entradaDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var movimentacao = new Movimentacao
-            {
-                MotoId = dto.MotoId,
-                UsuarioId = dto.UsuarioId,
-                PosicaoId = dto.PosicaoId,
-                Observacoes = dto.Observacoes,
-                Tipo = TipoMovimentacao.ENTRADA,
-                DataHora = DateTime.UtcNow
-            };
-            _context.Movimentacoes.Add(movimentacao);
-
-            if (dto.PosicaoId.HasValue)
-            {
-                var historicoAnteriorAtivo = await _context.HistoricoPosicoes
-                    .Where(h => h.MotoId == dto.MotoId && h.DataFim == null)
-                    .FirstOrDefaultAsync();
-                if (historicoAnteriorAtivo != null)
-                {
-                    historicoAnteriorAtivo.DataFim = DateTime.UtcNow;
-                }
-
-                var novoHistoricoPosicao = new HistoricoPosicao
-                {
-                    MotoId = dto.MotoId,
-                    PosicaoId = dto.PosicaoId.Value,
-                    DataInicio = DateTime.UtcNow
-                };
-                _context.HistoricoPosicoes.Add(novoHistoricoPosicao);
-            }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao salvar no banco (esperado na FIAP sem DB): {ex.Message}");
-                return Ok(new { Message = "Tentativa de entrada registrada (DB offline/não acessível).", Movimentacao = movimentacao });
-            }
-            return Ok(new { Message = "Entrada registrada com sucesso.", MovimentacaoId = movimentacao.Id });
+            var movimentacao = await _movimentacaoService.RegistrarEntradaAsync(entradaDto);
+            return CreatedAtAction(nameof(RegistrarEntrada), new { id = movimentacao.Id }, movimentacao);
         }
 
+        /// <summary>
+        /// Registra a saída de uma moto de uma posição do pátio.
+        /// </summary>
+        /// <remarks>
+        /// Cria um evento de "SAIDA" e atualiza o "HistoricoPosicao" existente, preenchendo a DataFim.
+        /// </remarks>
+        /// <param name="saidaDto">Dados da moto e da posição de saída.</param>
+        /// <response code="200">Saída registrada com sucesso.</response>
+        /// <response code="404">Se não for encontrado um registro de entrada aberto para a moto.</response>
         [HttpPost("saida")]
-        public async Task<IActionResult> RegistrarSaida([FromBody] MovimentacaoSaidaDto dto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RegistrarSaida([FromBody] MovimentacaoSaidaDto saidaDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var historicoFechado = await _movimentacaoService.RegistrarSaidaAsync(saidaDto);
 
-            var movimentacao = new Movimentacao
+            if (historicoFechado == null)
             {
-                MotoId = dto.MotoId,
-                UsuarioId = dto.UsuarioId,
-                Observacoes = dto.Observacoes,
-                Tipo = TipoMovimentacao.SAIDA,
-                DataHora = DateTime.UtcNow
-            };
-            _context.Movimentacoes.Add(movimentacao);
-
-            var historicoAtual = await _context.HistoricoPosicoes
-                .Where(h => h.MotoId == dto.MotoId && h.DataFim == null)
-                .FirstOrDefaultAsync();
-            if (historicoAtual != null)
-            {
-                historicoAtual.DataFim = DateTime.UtcNow;
+                return NotFound("Não foi encontrado um registro de entrada aberto para esta moto.");
             }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao salvar no banco (esperado na FIAP sem DB): {ex.Message}");
-                return Ok(new { Message = "Tentativa de saída registrada (DB offline/não acessível).", Movimentacao = movimentacao });
-            }
-            return Ok(new { Message = "Saída registrada com sucesso.", MovimentacaoId = movimentacao.Id });
+            return Ok(historicoFechado);
         }
     }
 }
