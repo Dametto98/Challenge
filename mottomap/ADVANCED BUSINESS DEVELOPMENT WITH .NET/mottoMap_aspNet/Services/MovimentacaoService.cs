@@ -2,6 +2,7 @@
 using MotoMap.Api.DotNet.Data;
 using MotoMap.Api.DotNet.Dtos;
 using MotoMap.Api.DotNet.Models;
+using System; // Adicionado para DateTime
 
 namespace MotoMap.Api.DotNet.Services
 {
@@ -19,8 +20,10 @@ namespace MotoMap.Api.DotNet.Services
             // 1. Cria a nova movimentação (evento)
             var movimentacao = new Movimentacao
             {
+                // CORREÇÃO: Removido .Value de MotoId (é int)
                 MotoId = entradaDto.MotoId,
-                PosicaoId = entradaDto.PosicaoId,
+                // CORREÇÃO: Mantido .Value para PosicaoId (é int?)
+                PosicaoId = entradaDto.PosicaoId.Value,
                 UsuarioId = entradaDto.UsuarioId,
                 Observacoes = entradaDto.Observacoes,
                 Tipo = "ENTRADA", // Define o tipo
@@ -31,8 +34,10 @@ namespace MotoMap.Api.DotNet.Services
             // 2. Cria o novo histórico (estado)
             var historico = new HistoricoPosicao
             {
-                MotoId = entradaDto.MotoId, // Assumindo que HistoricoPosicao tem MotoId
-                PosicaoId = entradaDto.PosicaoId,
+                // CORREÇÃO: Removido .Value de MotoId (é int)
+                MotoId = entradaDto.MotoId,
+                // CORREÇÃO: Mantido .Value para PosicaoId (é int?)
+                PosicaoId = entradaDto.PosicaoId.Value,
                 DataInicio = movimentacao.DataHora,
                 DataFim = null // Nulo significa que está ocupado
             };
@@ -48,6 +53,7 @@ namespace MotoMap.Api.DotNet.Services
         {
             // 1. Encontra o histórico "aberto" (DataFim == null) para esta moto
             var historicoAberto = await _context.HistoricoPosicoes
+                // CORREÇÃO: Removido .Value de MotoId (é int)
                 .FirstOrDefaultAsync(h => h.MotoId == saidaDto.MotoId && h.DataFim == null);
 
             if (historicoAberto == null)
@@ -62,9 +68,11 @@ namespace MotoMap.Api.DotNet.Services
             // 3. Cria a movimentação de saída (evento)
             var movimentacao = new Movimentacao
             {
+                // CORREÇÃO: Removido .Value de MotoId (é int)
                 MotoId = saidaDto.MotoId,
-                PosicaoId = saidaDto.PosicaoId,
-                UsuarioId = saidaDto.UsuarioId, // Assumindo que DTO de saída também tem UsuarioId
+                // CORREÇÃO (CS1061): Usando o PosicaoId do histórico que fechamos
+                PosicaoId = historicoAberto.PosicaoId,
+                UsuarioId = saidaDto.UsuarioId,
                 Observacoes = saidaDto.Observacoes,
                 Tipo = "SAIDA",
                 DataHora = historicoAberto.DataFim.Value
@@ -78,3 +86,4 @@ namespace MotoMap.Api.DotNet.Services
         }
     }
 }
+

@@ -36,17 +36,3 @@ namespace MotoMap.Api.DotNet.Data
         }
     }
 }
-```
-
----
-
-### Passo 2.3: Criar e Aplicar as Novas Migrations
-
-No seu terminal, rode os seguintes comandos (um de cada vez):
-
-```bash
-# 1. Cria o arquivo de migration
-dotnet ef migrations add AddEntidadesUsuarioPatioPosicao
-
-# 2. Aplica as alterações ao banco de dados (SQLite)
-dotnet ef database update

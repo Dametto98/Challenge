@@ -9,6 +9,7 @@ namespace MotoMap.Api.DotNet.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class HistoricoController : ControllerBase
     {
         private readonly IHistoricoService _historicoService;
@@ -55,13 +56,3 @@ namespace MotoMap.Api.DotNet.Controllers
         }
     }
 }
-```
-
----
-### Lembrete Final
-
-Você não precisa mexer no `Program.cs`, pois na nossa conversa anterior nós já adicionamos as linhas para registrar esses dois serviços:
-
-```csharp
-builder.Services.AddScoped<IMovimentacaoService, MovimentacaoService>();
-builder.Services.AddScoped<IHistoricoService, HistoricoService>();

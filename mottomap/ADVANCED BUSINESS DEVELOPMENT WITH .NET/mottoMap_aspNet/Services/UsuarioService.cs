@@ -45,7 +45,17 @@ namespace MotoMap.Api.DotNet.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                return !_context.Usuarios.Any(e => e.Id == id) ? false : throw;
+                // --- INÍCIO DA CORREÇÃO ---
+                // O código foi reescrito para evitar o erro CS1525
+                if (!_context.Usuarios.Any(e => e.Id == id))
+                {
+                    return false; // Usuário não foi encontrado
+                }
+                else
+                {
+                    throw; // Lança a exceção original
+                }
+                // --- FIM DA CORREÇÃO ---
             }
         }
 
@@ -60,3 +70,4 @@ namespace MotoMap.Api.DotNet.Services
         }
     }
 }
+
