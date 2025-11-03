@@ -1,14 +1,34 @@
-public class Moto
+using System.ComponentModel.DataAnnotations;
+
+namespace MotoMap.Api.DotNet.Models
 {
-    public int Id { get; set; }
+    /// <summary>
+    /// Representa uma moto no sistema.
+    /// </summary>
+    public class Moto
+    {
+        public int Id { get; set; }
 
-    /// A placa da moto, preferencialmente no formato Mercosul.
-    /// exemplo: BRA2E19
-    public string Placa { get; set; } = null!;
+        /// <summary>
+        /// Placa da moto (ex: BRA2E19).
+        /// </summary>
+        /// <example>BRA2E19</example>
+        [Required]
+        [StringLength(10)]
+        public string Placa { get; set; } = null!;
 
-    /// O nome do modelo da moto.
-    /// exemplo: Honda Biz
-    public string Modelo { get; set; } = null!;
+        /// <summary>
+        /// Modelo da moto (ex: Honda Biz).
+        /// </summary>
+        /// <example>Honda Biz</example>
+        [Required]
+        [StringLength(100)]
+        public string Modelo { get; set; } = null!;
 
-    public int Ano { get; set; }
+        /// <summary>
+        /// Ano de fabricação da moto.
+        /// </summary>
+        /// <example>2022</example>
+        public int Ano { get; set; }
+    }
 }

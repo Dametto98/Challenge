@@ -1,34 +1,50 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MotoMap.Api.DotNet.Models
 {
-    public enum TipoMovimentacao
-    {
-        ENTRADA,
-        SAIDA
-    }
-
+    /// <summary>
+    /// Representa um evento de movimentação (entrada ou saída).
+    /// </summary>
     public class Movimentacao
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        /// <summary>
+        /// Tipo de evento.
+        /// </summary>
+        /// <example>ENTRADA</example>
         [Required]
-        public TipoMovimentacao Tipo { get; set; }
+        [StringLength(10)]
+        public string Tipo { get; set; } = null!; // "ENTRADA" ou "SAIDA"
 
-        [Required]
+        /// <summary>
+        /// Data e hora em que o evento ocorreu.
+        /// </summary>
         public DateTime DataHora { get; set; }
 
-        public string? Observacoes { get; set; } // Nullable
-
-        [Required]
+        /// <summary>
+        /// ID da moto que foi movimentada.
+        /// </summary>
+        /// <example>1</example>
         public int MotoId { get; set; }
 
-        [Required]
+        /// <summary>
+        /// ID do usuário (operador) que registrou a movimentação.
+        /// </summary>
+        /// <example>1</example>
         public int UsuarioId { get; set; }
 
-        public int? PosicaoId { get; set; } // Nullable
+        /// <summary>
+        /// ID da posição envolvida na movimentação.
+        /// </summary>
+        /// <example>1</example>
+        public int PosicaoId { get; set; }
+
+        /// <summary>
+        /// Observações adicionais.
+        /// </summary>
+        /// <example>Entrada para manutenção.</example>
+        [StringLength(500)]
+        public string? Observacoes { get; set; }
     }
 }
