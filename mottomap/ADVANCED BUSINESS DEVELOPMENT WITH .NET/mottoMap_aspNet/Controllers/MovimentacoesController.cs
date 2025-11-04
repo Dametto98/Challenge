@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MotoMap.Api.DotNet.Dtos;
 using MotoMap.Api.DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
-    /// <summary>
-    /// Gerencia o registro de entradas e saídas de motos no pátio.
-    /// </summary>
+    [Authorize]
+    [ApiVersion("1.0")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class MovimentacaoController : ControllerBase
     {
         private readonly IMovimentacaoService _movimentacaoService;

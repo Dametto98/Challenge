@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MotoMap.Api.DotNet.Models;
 using MotoMap.Api.DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
-    /// <summary>
-    /// Fornece endpoints para consultar o histórico e estado atual das posições.
-    /// </summary>
+    [Authorize]
+    [ApiVersion("1.0")]
     [ApiController]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class HistoricoController : ControllerBase
     {
         private readonly IHistoricoService _historicoService;

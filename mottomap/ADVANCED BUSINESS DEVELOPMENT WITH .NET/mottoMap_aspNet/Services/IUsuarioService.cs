@@ -1,4 +1,5 @@
-﻿using MotoMap.Api.DotNet.Models;
+﻿using MotoMap.Api.DotNet.Dtos; 
+using MotoMap.Api.DotNet.Models;
 
 namespace MotoMap.Api.DotNet.Services
 {
@@ -9,5 +10,9 @@ namespace MotoMap.Api.DotNet.Services
         Task<Usuario> CreateAsync(Usuario usuario);
         Task<bool> UpdateAsync(int id, Usuario usuario);
         Task<bool> DeleteAsync(int id);
+
+        Task<Usuario?> RegisterAsync(UsuarioRegisterDto registerDto);
+        Task<string?> LoginAsync(UsuarioLoginDto loginDto);
     }
 }
+

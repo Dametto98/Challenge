@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using MotoMap.Api.DotNet.Models;
 using MotoMap.Api.DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
+    [Authorize]
+    [ApiVersion("1.0")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class MotosController : ControllerBase
     {
         private readonly IMotoService _motoService;

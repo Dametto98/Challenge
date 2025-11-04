@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MotoMap.Api.DotNet.Models;
 using MotoMap.Api.DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
-    /// <summary>
-    /// Gerencia o cadastro de Pátios/Filiais e suas Posições.
-    /// </summary>
+    [Authorize]
+    [ApiVersion("1.0")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class PatioController : ControllerBase
     {
         private readonly IPatioService _patioService;
