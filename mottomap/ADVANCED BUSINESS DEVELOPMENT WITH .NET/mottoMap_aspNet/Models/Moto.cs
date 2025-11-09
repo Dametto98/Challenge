@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MotoMap.Api.DotNet.Models
 {
@@ -7,12 +7,14 @@ namespace MotoMap.Api.DotNet.Models
     /// </summary>
     public class Moto
     {
+        /// <summary>
+        /// ID único da moto.
+        /// </summary>
         public int Id { get; set; }
 
         /// <summary>
         /// Placa da moto (ex: BRA2E19).
         /// </summary>
-        /// <example>BRA2E19</example>
         [Required]
         [StringLength(10)]
         public string Placa { get; set; } = null!;
@@ -20,15 +22,13 @@ namespace MotoMap.Api.DotNet.Models
         /// <summary>
         /// Modelo da moto (ex: Honda Biz).
         /// </summary>
-        /// <example>Honda Biz</example>
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string Modelo { get; set; } = null!;
 
         /// <summary>
-        /// Ano de fabrica��o da moto.
+        /// Ano de fabricação da moto.
         /// </summary>
-        /// <example>2022</example>
         public int Ano { get; set; }
     }
 }

@@ -1,22 +1,35 @@
-using System.ComponentModel.DataAnnotations;
+Ôªøusing System.ComponentModel.DataAnnotations;
 
 namespace MotoMap.Api.DotNet.Models
 {
     /// <summary>
-    /// Representa um p·tio ou filial da Mottu.
+    /// Representa um p√°tio ou filial da Mottu.
     /// </summary>
     public class Patio
     {
+        /// <summary>
+        /// ID √∫nico do p√°tio.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Nome do p√°tio (ex: "P√°tio Central SP").
+        /// </summary>
         [Required]
         [StringLength(100)]
         public string Nome { get; set; } = null!;
 
+        /// <summary>
+        /// Endere√ßo do p√°tio.
+        /// </summary>
         [StringLength(255)]
         public string? Endereco { get; set; }
 
-        // Propriedade de navegaÁ„o: Um P·tio pode ter v·rias PosiÁıes
+        /// <summary>
+        /// Lista de posi√ß√µes (vagas) que pertencem a este p√°tio.
+        /// </summary>
         public ICollection<Posicao> Posicoes { get; set; } = new List<Posicao>();
     }
+
+
 }

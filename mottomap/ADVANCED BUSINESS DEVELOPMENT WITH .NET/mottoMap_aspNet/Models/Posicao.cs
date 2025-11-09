@@ -8,17 +8,29 @@ namespace MotoMap.Api.DotNet.Models
     /// </summary>
     public class Posicao
     {
+        /// <summary>
+        /// ID único da posição.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Código da posição (ex: "A-01", "B-12").
+        /// </summary>
         [Required]
         [StringLength(20)]
-        public string Codigo { get; set; } = null!; // Ex: "A-01", "B-12"
+        public string Codigo { get; set; } = null!;
 
-        // Chave estrangeira para o Pátio
+        /// <summary>
+        /// Chave estrangeira para o Pátio ao qual esta posição pertence.
+        /// </summary>
         public int PatioId { get; set; }
 
-        // Propriedade de navegação
-        [JsonIgnore] // Evita loops de referência na serialização JSON
+        /// <summary>
+        /// Propriedade de navegação para o Pátio (ignorado no JSON para evitar loops).
+        /// </summary>
+        [JsonIgnore]
         public Patio? Patio { get; set; }
     }
+
+
 }

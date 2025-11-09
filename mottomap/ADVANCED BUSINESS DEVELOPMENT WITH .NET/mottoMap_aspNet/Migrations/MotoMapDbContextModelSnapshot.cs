@@ -15,29 +15,7 @@ namespace MotoMap.Api.DotNet.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
-
-            modelBuilder.Entity("Moto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Ano")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Modelo")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Placa")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Motos");
-                });
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
 
             modelBuilder.Entity("MotoMap.Api.DotNet.Models.HistoricoPosicao", b =>
                 {
@@ -62,6 +40,30 @@ namespace MotoMap.Api.DotNet.Migrations
                     b.ToTable("HistoricoPosicoes");
                 });
 
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Moto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Motos");
+                });
+
             modelBuilder.Entity("MotoMap.Api.DotNet.Models.Movimentacao", b =>
                 {
                     b.Property<int>("Id")
@@ -75,20 +77,113 @@ namespace MotoMap.Api.DotNet.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Observacoes")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("PosicaoId")
+                    b.Property<int>("PosicaoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Tipo")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("UsuarioId")
+                    b.Property<int?>("UsuarioId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.ToTable("Movimentacoes");
+                });
+
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Patio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Endereco")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Patios");
+                });
+
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Posicao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PatioId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatioId");
+
+                    b.ToTable("Posicoes");
+                });
+
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Perfil")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Posicao", b =>
+                {
+                    b.HasOne("MotoMap.Api.DotNet.Models.Patio", "Patio")
+                        .WithMany("Posicoes")
+                        .HasForeignKey("PatioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patio");
+                });
+
+            modelBuilder.Entity("MotoMap.Api.DotNet.Models.Patio", b =>
+                {
+                    b.Navigation("Posicoes");
                 });
 #pragma warning restore 612, 618
         }

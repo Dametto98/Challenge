@@ -4,11 +4,9 @@ using MotoMap.Api.DotNet.Services;
 
 namespace MotoMap.Api.DotNet.Controllers
 {
-    /// <summary>
-    /// Gerencia o registro e login de usuários.
-    /// </summary>
+    [ApiVersion("1.0")] 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
@@ -18,9 +16,6 @@ namespace MotoMap.Api.DotNet.Controllers
             _usuarioService = usuarioService;
         }
 
-        /// <summary>
-        /// Registra um novo usuário no sistema.
-        /// </summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register(UsuarioRegisterDto registerDto)
         {
@@ -29,13 +24,9 @@ namespace MotoMap.Api.DotNet.Controllers
             {
                 return BadRequest("Email já cadastrado.");
             }
-            // Retorna o usuário criado (sem a senha)
-            return CreatedAtAction(nameof(Register), new { id = usuario.Id }, usuario);
+            return Ok(usuario);
         }
 
-        /// <summary>
-        /// Autentica um usuário e retorna um token JWT.
-        /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login(UsuarioLoginDto loginDto)
         {

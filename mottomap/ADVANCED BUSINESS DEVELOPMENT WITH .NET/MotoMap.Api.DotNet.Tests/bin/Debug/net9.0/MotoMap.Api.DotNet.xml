@@ -1,0 +1,266 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MotoMap.Api.DotNet</name>
+    </assembly>
+    <members>
+        <member name="M:MotoMap.Api.DotNet.Controllers.HistoricoController.GetPosicoesAtuais">
+            <summary>
+            Consulta todas as posições que estão atualmente ocupadas.
+            </summary>
+            <remarks>
+            Retorna uma lista de registros de histórico onde a DataFim é nula.
+            </remarks>
+            <response code="200">Retorna a lista de posições ocupadas.</response>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.HistoricoController.GetHistoricoPorMoto(System.Int32)">
+            <summary>
+            Lista todo o histórico de posições (passadas e atual) de uma moto específica.
+            </summary>
+            <param name="motoId">O ID da moto a ser consultada.</param>
+            <response code="200">Retorna o histórico da moto.</response>
+            <response code="404">Se a moto não tiver nenhum histórico.</response>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.MovimentacaoController.RegistrarEntrada(MotoMap.Api.DotNet.Dtos.MovimentacaoEntradaDto)">
+            <summary>
+            Registra a entrada de uma moto em uma posição do pátio.
+            </summary>
+            <remarks>
+            Cria um evento de "ENTRADA" e um novo registro de "HistoricoPosicao" com DataFim nula.
+            </remarks>
+            <param name="entradaDto">Dados da moto, posição e usuário.</param>
+            <response code="201">Entrada registrada com sucesso.</response>
+            <response code="400">Se os dados da requisição forem inválidos.</response>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.MovimentacaoController.RegistrarSaida(MotoMap.Api.DotNet.Dtos.MovimentacaoSaidaDto)">
+            <summary>
+            Registra a saída de uma moto de uma posição do pátio.
+            </summary>
+            <remarks>
+            Cria um evento de "SAIDA" e atualiza o "HistoricoPosicao" existente, preenchendo a DataFim.
+            </remarks>
+            <param name="saidaDto">Dados da moto e da posição de saída.</param>
+            <response code="200">Saída registrada com sucesso.</response>
+            <response code="404">Se não for encontrado um registro de entrada aberto para a moto.</response>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.PatioController.GetPatios">
+            <summary>
+            Lista todos os pátios e suas posições.
+            </summary>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.PatioController.GetPatio(System.Int32)">
+            <summary>
+            Busca um pátio por ID, incluindo suas posições.
+            </summary>
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Controllers.PatioController.PostPatio(MotoMap.Api.DotNet.Models.Patio)">
+            <summary>
+            Cria um novo pátio.
+            </summary>
+            <remarks>
+            Você pode criar posições junto com o pátio:
+            {
+              "nome": "Pátio Central",
+              "endereco": "Rua A, 123",
+              "posicoes": [
+                { "codigo": "A01" },
+                { "codigo": "A02" }
+              ]
+            }
+            </remarks>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Dtos.UsuarioLoginDto">
+            <summary>
+            Dados necessários para o login de um usuário.
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Migrations.CriacaoInicialCompleta">
+            <inheritdoc />
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Migrations.CriacaoInicialCompleta.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Migrations.CriacaoInicialCompleta.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MotoMap.Api.DotNet.Migrations.CriacaoInicialCompleta.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.HistoricoPosicao">
+            <summary>
+            Representa o estado de ocupação de uma posição por uma moto ao longo do tempo.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.HistoricoPosicao.Id">
+            <summary>
+            ID único do registro de histórico.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.HistoricoPosicao.MotoId">
+            <summary>
+            ID da moto que está (ou esteve) na posição.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.HistoricoPosicao.PosicaoId">
+            <summary>
+            ID da posição que está (ou esteve) ocupada.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.HistoricoPosicao.DataInicio">
+            <summary>
+            Data e hora em que a moto entrou na posição.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.HistoricoPosicao.DataFim">
+            <summary>
+            Data e hora em que a moto saiu da posição.
+            (Nulo se a moto ainda estiver na posição).
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.Moto">
+            <summary>
+            Representa uma moto no sistema.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Moto.Id">
+            <summary>
+            ID único da moto.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Moto.Placa">
+            <summary>
+            Placa da moto (ex: BRA2E19).
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Moto.Modelo">
+            <summary>
+            Modelo da moto (ex: Honda Biz).
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Moto.Ano">
+            <summary>
+            Ano de fabricação da moto.
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.Movimentacao">
+            <summary>
+            Representa um evento de movimentação (uma entrada ou saída).
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.Id">
+            <summary>
+            ID único do evento de movimentação.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.Tipo">
+            <summary>
+            Tipo de evento (ex: "ENTRADA", "SAIDA").
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.DataHora">
+            <summary>
+            Data e hora em que o evento ocorreu.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.Observacoes">
+            <summary>
+            Observações (ex: "Manutenção", "Entrega").
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.MotoId">
+            <summary>
+            ID da moto que foi movimentada.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.UsuarioId">
+            <summary>
+            ID do usuário (operador) que registrou a movimentação.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Movimentacao.PosicaoId">
+            <summary>
+            ID da posição (vaga) envolvida na movimentação.
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.Patio">
+            <summary>
+            Representa um pátio ou filial da Mottu.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Patio.Id">
+            <summary>
+            ID único do pátio.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Patio.Nome">
+            <summary>
+            Nome do pátio (ex: "Pátio Central SP").
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Patio.Endereco">
+            <summary>
+            Endereço do pátio.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Patio.Posicoes">
+            <summary>
+            Lista de posições (vagas) que pertencem a este pátio.
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.Posicao">
+            <summary>
+            Representa uma posição específica (vaga) dentro de um pátio.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Posicao.Id">
+            <summary>
+            ID único da posição.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Posicao.Codigo">
+            <summary>
+            Código da posição (ex: "A-01", "B-12").
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Posicao.PatioId">
+            <summary>
+            Chave estrangeira para o Pátio ao qual esta posição pertence.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Posicao.Patio">
+            <summary>
+            Propriedade de navegação para o Pátio (ignorado no JSON para evitar loops).
+            </summary>
+        </member>
+        <member name="T:MotoMap.Api.DotNet.Models.Usuario">
+            <summary>
+            Representa um usuário (operador ou administrador) do sistema.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Usuario.Id">
+            <summary>
+            ID único do usuário.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Usuario.Nome">
+            <summary>
+            Nome completo do usuário.
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Usuario.Email">
+            <summary>
+            Email de login (deve ser único).
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Usuario.PasswordHash">
+            <summary>
+            Hash da senha do usuário (nunca retornado pela API).
+            </summary>
+        </member>
+        <member name="P:MotoMap.Api.DotNet.Models.Usuario.Perfil">
+            <summary>
+            Perfil de permissão (ex: "Operador", "Admin").
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -3,19 +3,21 @@
 namespace MotoMap.Api.DotNet.Models
 {
     /// <summary>
-    /// Representa um evento de movimentação (entrada ou saída).
+    /// Representa um evento de movimentação (uma entrada ou saída).
     /// </summary>
     public class Movimentacao
     {
+        /// <summary>
+        /// ID único do evento de movimentação.
+        /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// Tipo de evento.
+        /// Tipo de evento (ex: "ENTRADA", "SAIDA").
         /// </summary>
-        /// <example>ENTRADA</example>
         [Required]
         [StringLength(10)]
-        public string Tipo { get; set; } = null!; // "ENTRADA" ou "SAIDA"
+        public string Tipo { get; set; } = null!;
 
         /// <summary>
         /// Data e hora em que o evento ocorreu.
@@ -23,28 +25,28 @@ namespace MotoMap.Api.DotNet.Models
         public DateTime DataHora { get; set; }
 
         /// <summary>
+        /// Observações (ex: "Manutenção", "Entrega").
+        /// </summary>
+        [StringLength(500)]
+        public string? Observacoes { get; set; }
+
+        // --- Chaves Estrangeiras ---
+
+        /// <summary>
         /// ID da moto que foi movimentada.
         /// </summary>
-        /// <example>1</example>
         public int MotoId { get; set; }
 
         /// <summary>
         /// ID do usuário (operador) que registrou a movimentação.
         /// </summary>
-        /// <example>1</example>
-        public int UsuarioId { get; set; }
+        public int? UsuarioId { get; set; }
 
         /// <summary>
-        /// ID da posição envolvida na movimentação.
+        /// ID da posição (vaga) envolvida na movimentação.
         /// </summary>
-        /// <example>1</example>
         public int PosicaoId { get; set; }
-
-        /// <summary>
-        /// Observações adicionais.
-        /// </summary>
-        /// <example>Entrada para manutenção.</example>
-        [StringLength(500)]
-        public string? Observacoes { get; set; }
     }
+
+
 }
