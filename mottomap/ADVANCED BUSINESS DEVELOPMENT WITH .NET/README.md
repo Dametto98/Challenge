@@ -1,93 +1,96 @@
-# 🏍️ MotoMap - Módulo de Movimentações e Histórico (.NET)
+# 🏍️ MotoMap - API de Gestão de Pátios (.NET) — Sprint 4
 
-O MotoMap é um sistema desenvolvido para auxiliar na organização e gestão dos pátios de motos da empresa Mottu. Este módulo específico, desenvolvido em ASP.NET Core (C#), é o **Dono das Ações** relacionadas às operações temporais e integrações externas do sistema.
+API RESTful completa para o sistema **MotoMap**, responsável pela gestão de motos, pátios, usuários e movimentações. Projeto desenvolvido para a disciplina **Advanced Business Development with .NET** da FIAP.
 
 ## 👨‍💻 Equipe
+- **Caike Dametto** – RM: 558614  
+- **Guilherme Janunzzi** – RM: 558461  
 
-- Caike Dametto – RM: 558614
-- Guilherme Janunzzi – RM: 558461
+## 🏛️ Arquitetura
+A arquitetura foi refatorada para aplicar boas práticas e corrigir os débitos apontados na Sprint 3.
 
-## 🏛️ Justificativa da Arquitetura
+### Camadas da Aplicação
+- **API (Controllers):** Recebe requisições HTTP, valida DTOs e aciona os serviços.  
+- **Services:** Contém toda a lógica de negócio, removendo os antigos *Fat Controllers*. Inclui validações, orquestração de dados e uso do DbContext.  
+- **Domain (Models):** Define as entidades principais: Moto, Movimentacao, HistoricoPosicao, Usuario e Patio.  
+- **Data (Repositórios):** Acesso a dados utilizando Entity Framework Core com padrão de repositório (implementado nos Services).
 
-* **Tecnologia (.NET e C#):** A escolha pelo ASP.NET Core se deu pela sua alta performance, natureza open-source e ecossistema robusto, ideal para a construção de APIs RESTful escaláveis. A linguagem C# oferece segurança de tipo e recursos modernos que agilizam o desenvolvimento.
-* **Padrão de API RESTful:** Optamos por uma arquitetura RESTful para garantir a interoperabilidade com outros módulos (como o de Java). O uso de verbos HTTP (`GET`, `POST`, `PUT`, `DELETE`) e status codes padronizados torna a comunicação clara e previsível.
-* **Divisão de Responsabilidades (Microsserviços):** Este módulo funciona como um microsserviço focado exclusivamente no domínio de movimentações e histórico. Essa abordagem facilita a manutenção, a implantação e a escalabilidade, permitindo que cada parte do sistema evolua de forma independente.
-* **Entity Framework Core:** Utilizamos o EF Core como ORM para abstrair o acesso ao banco de dados, aumentando a produtividade. O uso do provedor SQLite torna o ambiente de desenvolvimento extremamente leve e rápido, sem a necessidade de um servidor de banco de dados externo.
+## ✨ Funcionalidades — Sprint 4
+Este projeto entrega todas as funcionalidades avançadas exigidas:
+
+- **Segurança (JWT):** Endpoints protegidos com `[Authorize]` utilizando autenticação e autorização via JWT.  
+- **Versionamento de API:** Estrutura `/api/v1/...`.  
+- **Health Checks:** Endpoint `/health` monitora API e banco SQLite.  
+- **Testes Unitários (xUnit):** Cobrem regras de negócio como `UsuarioService`.  
+- **Testes de Integração (WebApplicationFactory):** Validam autenticação (401) e Health Check (200).  
+- **Machine Learning (ML.NET):** Endpoint `POST /api/v1/Previsao/tempo-estadia` prevê tempo de estadia de uma moto usando FastTree Regression.
 
 ## 🛠️ Tecnologias Utilizadas
-
-- ASP.NET Core
-- C#
-- Entity Framework Core
-- SQLite
+- .NET 8  
+- ASP.NET Core  
+- Entity Framework Core  
+- SQLite  
+- xUnit  
+- Moq  
+- ML.NET  
+- Swagger / OpenAPI  
 
 ## ✅ Pré-requisitos
-
-* .NET SDK (versão 6.0 ou superior recomendada)
-* Um ambiente de desenvolvimento integrado (IDE) como Visual Studio, JetBrains Rider ou Visual Studio Code.
+- **.NET SDK 8.0**  
+- **VS Code** ou **Visual Studio 2022**
 
 ## 🚀 Como Executar a API
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone <URL_DO_SEU_REPOSITORIO_DOTNET>
-    cd <NOME_DA_PASTA_DO_PROJETO_DOTNET>
-    ```
+### 1. Clone o repositório:
 
-2.  **Crie o Banco de Dados (SQLite):**
-    O banco de dados será criado automaticamente. Basta executar o comando abaixo para aplicar as configurações no banco de dados local.
-    ```bash
-    dotnet ef database update
-    ```
+git clone https://github.com/Dametto98/Challenge/tree/main/mottomap/ADVANCED%20BUSINESS%20DEVELOPMENT%20WITH%20.NET
+cd mottoMap_aspNet
 
-3.  **Execute o projeto:**
-    ```bash
-    dotnet run
-    ```
 
-4.  **Acesse a documentação interativa (Swagger):**
-    A API estará rodando e a documentação Swagger estará disponível, geralmente em: `http://localhost:5001/swagger` (a porta pode variar).
+### 2. Restaure os pacotes:
+```bash
+dotnet restore
+
+### 3. Crie o banco de dados (SQLite):
+```bash
+dotnet ef database update
+
+### 4. Execute o projeto:
+```bash
+dotnet run
+
+### A API estará disponível em:
+http://localhost:5171
+
+### 5. Acesse o Swagger:
+```bash
+http://localhost:5171/swagger
+
+### 1. Clone o repositório:
+```bash
 
 ## 🧪 Como Rodar os Testes
-
-Para executar os testes automatizados do projeto (se houver), navegue até a pasta do projeto de testes e execute o seguinte comando:
-
 ```bash
-# Navegue para a pasta de testes (ex: cd MotoMap.Tests)
+cd MotoMap.Api.DotNet.Tests
 dotnet test
 
-## 🔗 Exemplos de Uso dos Endpoints
+### Resultado esperado:
+Resumo do teste: total: 3; falhou: 0; bem-sucedido: 3;
 
-Abaixo estão exemplos de como interagir com os principais endpoints da API.
+## 🔐 Usando JWT no Swagger
+Execute POST /api/v1/Auth/register para criar um usuário.
 
-### 1. Registrar uma nova moto
+Execute POST /api/v1/Auth/login.
 
-**Requisição:** `POST /api/motos`
+Copie o token retornado.
 
-**Corpo (Body):**
-```json
-{
-  "placa": "ABC1D23",
-  "modelo": "Yamaha Fazer 250",
-  "ano": 2023
-}
+No Swagger, clique em Authorize.
 
-### 2. Registrar a entrada de uma moto em um pátio
+Cole assim:
 
-**Requisição:** `POST /movimentacoes/entrada`
+Bearer {SEU_TOKEN_AQUI}
 
-**Corpo (Body):**
-```json
-{
-  "motoId": 1,
-  "posicaoId": 101,
-  "usuarioId": 55,
-  "observacoes": "Entrada para manutenção."
-}
-
-### 3. Registrar a entrada de uma moto em um pátio
-
-**Requisição:** `GET /historico/posicoes/atuais`
+Agora você pode acessar os endpoints protegidos.
 
 📅 **Licença**
 
